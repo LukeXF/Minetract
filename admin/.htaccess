@@ -1,0 +1,24 @@
+RewriteEngine On
+Options -Indexes
+
+ErrorDocument 403 http://admin.gunsdaily.net/404
+ErrorDocument 404 http://admin.gunsdaily.net/404
+
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1\.php -f
+RewriteRule ^([^/]+)/?$ $1.php [L]
+
+# sets the true header of a web page
+<FilesMatch "\.(?i:xml)$">
+      ForceType application/octet-stream
+      Header set Content-Disposition attachment
+</FilesMatch>
+
+# blocks the assets directory from been effected by rewrite
+RewriteRule ^assets/ - [L,NC]
+
+# Tells css that it's actually css
+AddType text/css .css 
