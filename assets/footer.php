@@ -1,21 +1,36 @@
+  <div class="push"></div>
+
+</div>		
 		<div class="grey footergrey">
 			<div class="container">
 				<div class="row footer">
-					<div class="col-md-4">				
-						<h3>MINETRACT</h3>						
+					<div class="col-md-4" align="left">
+						<h3><a href="<?php echo $mt_url; ?>">MINETRACT</a></h3>
 					</div>
-					<div class="col-md-4">
-						<h3><a href="">Terms &amp; Conditions</a></h3>
+					<div class="col-md-8" align="right">	
+						<span>
+							<a href="<?php echo $mt_url; ?>news">Latest News</a> - <a href="<?php echo $mt_url; ?>account">Your Account</a><br>
+							<a href="<?php echo $mt_url; ?>legal">Terms &amp; Conditions</a>
+						</span>				
 					</div>
-					<div class="col-md-4">
-						<span>&copy; Minetract 2014 Not affiliated or endored by Mojang AB</span>
+				</div>
+				<hr>
+				<div class="row footer">
+					<div class="col-md-4" align="left">	
+						<span>
+							<a href="<?php echo $mt_url; ?>news">Latest News</a> - <a href="<?php echo $mt_url; ?>account">Your Account</a><br>
+							<a href="<?php echo $mt_url; ?>legal">Terms &amp; Conditions</a>
+						</span>				
+					</div>
+					<div class="col-md-4" align="right">
+						<span>&copy; Minetract 2014 Not affiliated or endorsed by Mojang AB</span>
 					</div>
 				</div>
 			</div>
 		</div>
 
 
-		<script src="assets/js/classie.js"></script>
+		<script src="<?php echo $mt_url; ?>assets/js/classie.js"></script>
 				<script>
 				menuRight = document.getElementById( 'cbp-spmenu-s2' ),
 				showRightPush = document.getElementById( 'showRightPush' ),

@@ -1,3 +1,5 @@
+<?php $userStars = 4; ?>
+<div class="wrapper">
 <body class="cbp-spmenu-push">
 	<div class="navbar navbar-inverse" role="navigation">
 		<div class="container">
@@ -8,7 +10,10 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="<?php echo $mainurl; ?>"><img src="assets/img/logo-img.png" alt="MINETRACT"><img src="assets/img/logo.png" alt="MINETRACT"></a>
+				<a class="navbar-brand" href="<?php echo $mt_url; ?>">
+					<img src="<?php echo $mt_url; ?>assets/img/logo-img.png" alt="MINETRACT">
+					<img src="<?php echo $mt_url; ?>assets/img/logo.png" alt="MINETRACT">
+				</a>
 			</div>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav navbar-right">
@@ -74,55 +79,32 @@
 						<!-- Modal -->
 						<div class="modal fade" id="login-popup" tabindex="-1" role="dialog" aria-labelledby="login-popup" aria-hidden="true">
 							<div class="modal-dialog">
-								<div class="modal-content">
+								<form method="post" action="<?php echo $mt_url; ?>" name="loginform">
+									<div class="modal-content">
 
-									<div class="modal-header">									
-										<h4 class="modal-title" id="login-popup">Minetract</h4>
-									</div>
-									<div class="modal-body">								
-										
-											<div id="error">
-											</div>		
-										<input type="email"    id="login_input_username" placeholder="email address" name="user_name">
-										<input type="password" id="login_input_password" placeholder="password" name="user_password">
-									</div>
-									<div class="modal-footer">
-										<button type="submit" value="Login" name="login" class="btn btn-primary">Sign In</button>
-										<div>forgotten details?</div>
-										<div>sign up</div>
-									</div>
+										<div class="modal-header">
+											<h4 class="modal-title" id="login-popup">Minetract</h4>
+										</div>
+										<div class="modal-body">								
+											<input type="email"    id="login_input_username" placeholder="email address" name="user_name">
+											<input type="password" id="login_input_password" placeholder="password" name="user_password">
+										</div>
+										<div class="modal-footer">
+											<button type="submit" value="Login" name="login" class="btn btn-primary">Sign In</button>
+											
+										    <input type="checkbox" id="user_rememberme" name="user_rememberme" value="1" />
+										    <label class="save" for="user_rememberme">Keep me logged in</label><br>
+											<div><a href="forgot">forgotten details?</a></div>
+											<div><a href="register">sign up</a></div>
+										</div>
 
-								</div>
+									</div>
+								</form>
 							</div>
 						</div>
 
 					</li>
 				</ul>
-				<script type="text/javascript">
-
-					$("#login").click(function() {
-						var email = $("#login_input_username").val();
-						var password = $("#login_input_password").val();
-
-						if ($.trim(email).length > 0 && $.trim(password).length > 0) {
-							$.ajax({
-								type: "POST",
-								url: "classes/Login.php",
-								data: "user_name="+email+"&user_password"+password,
-								success: function(html) {
-									if (html)
-										window.location = "login.php";
-									else
-										$("#error").html("<p style='color: red;'>There was an error</p>");
-								}
-							});
-						} else {
-							$("#error").html("<p style='color: red;'>One Or More Fields Are Empty</p>");
-						}
-					});
-
-				</script>
-
 				<script type="text/javascript">
 					$(function () {
 					$('[data-toggle="tooltip"]').tooltip()
@@ -141,18 +123,36 @@
 
 	<nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right" id="cbp-spmenu-s2">
 		<h3>Profile</h3>
-		<img src="http://root-image.luke.sx/8227.png" alt="..." class="img-circle">
-		<h3 class="title"><?php echo $_SESSION['user_name']; ?> <?php echo $_SESSION['user_last']; ?></h3>
+		<img src="<?php echo $grav_url; ?>" alt="..." class="img-circle">
+		<h3 class="title"><?php echo $_SESSION['user_first']; ?> <?php echo $_SESSION['user_last']; ?></h3>
 		<span class="rating">
-			<span class="star"><i class="fa fa-star"></i></span>
-			<span class="star"><i class="fa fa-star"></i></span>
-			<span class="star"><i class="fa fa-star"></i></span>
-			<span class="star"><i class="fa fa-star"></i></span>
-			<span class="star"><i class="fa fa-star-o"></i></span>
+			<?php
+				$i = $userStars;
+				while ( $i > 0) {
+					echo "<span class='star'><i class='fa fa-star'></i></span>";
+					$i--;
+				}
+				$i = (5 - $userStars);
+				while ( $i > 0) {
+					echo "<span class='star'><i class='fa fa-star-o'></i></span>";
+					$i--;
+				}
+			?>
 		</span>
-		<a href="#">Commissions</a>
-		<a href="#">Shop</a>
-		<a href="#">Analytics</a>
-		<a href="#">Settings</a>
-		<a href="#">Upgrade Account</a>
+		<a href="<?php echo $mt_url; ?>commissions">Commissions</a>
+		<a href="<?php echo $mt_url; ?>shop-dashboard">Shop</a>
+		<a href="<?php echo $mt_url; ?>analytics">Analytics</a>
+		<a href="<?php echo $mt_url; ?>settings">Settings</a>
+		<a href="<?php echo $mt_url; ?>upgrade">Upgrade Account</a>
+		<a href="<?php echo $mt_url; ?>?logout">Logout</a>
 	</nav>
+
+
+	<?php
+		// if debug is on and the user is not an admin shut down the system.
+		if ($_SESSION['user_type'] != 6 && $isThisTheMaintenancePage == false && $shutdown) {
+			echo "<script>window.location.href ='". $fullUrl . "/maintenance';</script>";
+		}
+	?>
+
+

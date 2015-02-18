@@ -1,5 +1,4 @@
 <?php
-	require '/var/www/html/luke/demo.luke.sx/minetract/config/db.php';
 	function fieldCount($field,$condition,$table){
 		$DB_HOST = DB_HOST;
 		$DB_NAME = DB_NAME;
@@ -37,4 +36,5 @@
 
 		return $results;
 	}
+	
 ?>
