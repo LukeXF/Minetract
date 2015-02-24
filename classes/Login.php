@@ -94,11 +94,7 @@ class Login
             } elseif (isset($_POST["user_edit_submit_password"])) {
                 // function below uses $_SESSION['user_name'] and $_SESSION['user_id']
                 $this->editUserPassword($_POST['user_password_old'], $_POST['user_password_new'], $_POST['user_password_repeat']);
-            // user try to change his personal details
-            } elseif (isset($_POST["user_personal_details"])) {
-                $this->editPersonalDetails($_POST['user_name_first'], $_POST['user_name_last'], $_POST['user_main_type']);
             }
-        
 
         // login with cookie
         } elseif (isset($_COOKIE['rememberme'])) {
@@ -447,29 +443,6 @@ class Login
     }
 
     /**
-     * Edit the personal data
-     */
-    public function editPersonalDetails($user_name_first, $user_name_last, $user_main_type)
-    {
-        
-                // write user's new data into database
-                $query_edit_personal_data = $this->db_connection->prepare('UPDATE users SET user_name_first = :user_name_first AND user_name_last = :user_name_last AND user_main_type = :user_main_type WHERE user_id = :user_id');
-                $query_edit_personal_data->bindValue(':user_name_first', $user_name_first, PDO::PARAM_STR);
-                $query_edit_personal_data->bindValue(':user_name_last', $user_name_last, PDO::PARAM_STR);
-                $query_edit_personal_data->bindValue(':user_main_type', $user_main_type, PDO::PARAM_STR);
-                $query_edit_personal_data->bindValue(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
-                $query_edit_personal_data->execute();
-
-                if ($query_edit_personal_data->rowCount()) {
-                    $_SESSION['user_name'] = $user_name;
-                    $this->messages[] = MESSAGE_USERNAME_CHANGED_SUCCESSFULLY . $user_name;
-                } else {
-                    $this->errors[] = MESSAGE_USERNAME_CHANGE_FAILED;
-                }
-        
-    }
-
-    /**
      * Edit the user's email, provided in the editing form
      */
     public function editUserEmail($user_email)
@@ -767,6 +740,7 @@ class Login
         return $this->user_name;
     }
 
+    
     /**
      * Get either a Gravatar URL or complete image tag for a specified email address.
      * Gravatar is the #1 (free) provider for email address based global avatar hosting.

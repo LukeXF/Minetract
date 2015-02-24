@@ -1,23 +1,63 @@
-<div class="container" style="margin-top: 75px;">
-	<div class="col-md-6 col-md-offset-3">
-
-		<form method="post" action="index.php" name="loginform">
-			<div class="modal-content">
-
-				<div class="modal-header">
-					<h4 class="modal-title" id="login-popup">Login</h4>
-				</div>
-				<div class="modal-body">								
-					<input type="email" id="login_input_username" placeholder="email address" name="user_name">
-					<input type="password" id="login_input_password" placeholder="password" name="user_password">
-				</div>
-				<div class="modal-footer">
-					<button type="submit" value="Login" name="login" class="btn btn-primary">Sign In</button>
-						<div><a href="forgot">forgotten details?</a></div>
-						<div><a href="register">sign up</a></div>
-					</div>
+<div class="jumbotron smaller">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<h1 class="slideDown">Sign In Page</h1>
 			</div>
-		</form>
+		</div>
+	</div>
 
+</div>
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-4 col-md-offset-4 contentbox">
+
+			<form method="post" action="login<?php echo $dotPHP; ?>" name="loginform">
+						
+				<?php
+				// show potential errors / feedback (from login object)
+				if (isset($login)) {
+				    if ($login->errors) {
+				        foreach ($login->errors as $error) {
+				            echo $error;
+				        }
+				    }
+				    if ($login->messages) {
+				        foreach ($login->messages as $message) {
+				            echo $message;
+				        }
+				    }
+				}
+				?>
+
+				<?php
+				// show potential errors / feedback (from registration object)
+				if (isset($registration)) {
+				    if ($registration->errors) {
+				        foreach ($registration->errors as $error) {
+				            echo $error;
+				        }
+				    }
+				    if ($registration->messages) {
+				        foreach ($registration->messages as $message) {
+				            echo $message;
+				        }
+				    }
+				}
+				?>
+				<a class="brand animate" href="<?php echo $domain; ?>"><?php echo $brand; ?></a>
+			    <input id="user_name" type="text" name="user_name" required placeholder="Your Username" />
+			    <input id="user_password" type="password" name="user_password" autocomplete="off" required placeholder="Your Password" />
+
+			    <input type="checkbox" id="user_rememberme" name="user_rememberme" value="1" />
+			    <label for="user_rememberme">Keep me logged in (for 2 weeks)</label>
+			    <input type="submit" class="btn btn-primary" name="login" value="Log In" />
+			</form>
+
+			<a href="register.php">Register New Account</a>
+			<a href="password_reset.php">I forgot my password</a>
+
+		</div>
 	</div>
 </div>

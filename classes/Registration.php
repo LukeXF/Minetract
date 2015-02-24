@@ -149,39 +149,112 @@ class Registration
 
                 if ($query_new_user_insert) {
                     // send a verification email
-                    if ($this->sendVerificationEmail($user_id, $user_email, $user_activation_hash)) {
+                    if ($this->sendVerificationEmail($user_id, $user_email, $user_activation_hash, $user_name)) {
                         // when mail has been send successfully
-                        $this->messages[] = MESSAGE_VERIFICATION_MAIL_SENT;
+                        $this->messages[] = "Your account has been created successfully and we have sent you an email. Please click the VERIFICATION LINK within that mail.";
                         $this->registration_successful = true;
+                        echo "<h1>WE SENT IT</h1>";
                     } else {
                         // delete this users account immediately, as we could not send a verification email
-                        $query_delete_user = $this->db_connection->prepare('DELETE FROM users WHERE user_id=:user_id');
-                        $query_delete_user->bindValue(':user_id', $user_id, PDO::PARAM_INT);
-                        $query_delete_user->execute();
+                        //$query_delete_user = $this->db_connection->prepare('DELETE FROM users WHERE user_id=:user_id');
+                        //$query_delete_user->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+                        //$query_delete_user->execute();
+                        echo "<h1>WE DIDNT SENT IT</h1>";
 
-                        $this->errors[] = MESSAGE_VERIFICATION_MAIL_ERROR;
+                        $this->errors[] = "Sorry, we could not send you an verification mail. Your account has NOT been created.";
                     }
                 } else {
-                    $this->errors[] = MESSAGE_REGISTRATION_FAILED;
+                    $this->errors[] = "Sorry, your registration failed. Please go back and try again.";
                 }
             }
         }
     }
 
+
+
+
+
     /*
      * sends an email to the provided email address
      * @return boolean gives back true if mail has been sent, gives back false if no mail could been sent
      */
-    public function sendVerificationEmail($user_id, $user_email, $user_activation_hash)
+    public function sendVerificationEmail($user_id, $user_email, $user_activation_hash, $user_name)
     {
+
+
+        // include the Mandrill PHP Wrapper
+        require 'lib/mandrill/src/Mandrill.php';
+
+
+        // start a new instants of the Mandrill class
+        $mandrill = new Mandrill('f3aumBm_dMe6Inv3vTWD7w');
+
+
+        // generate the message that is sent to the user upon sending an email
+        $message = array(
+
+            // the subject will be sent as the email subject.
+            'subject' => 'Welcome to ' . $GLOBALS['brand'] . ' ' . $user_name,
+
+            // this variable is stored in the config file
+            // for this to work over SMTP you must allow Mandrill's confirmation txt record
+            // on your DNS for your domain that you are using
+            'from_email' => $GLOBALS['email'],
+
+            // the visible name that is displayed as the sender on things like Google Mail
+            'from_name' => 'The ' . $GLOBALS['brand'] . ' Team',
+
+            // array of where to send the email to, multiple arrays for multiple people
+            'to' => array(
+                array('email' => $user_email, 'name' => $user_name)
+            )
+
+        );
+
+
+        // the name of the template stored on the Mandrill website
+        $template_name = 'Test';
+
+
+        // generates the link for the verfication using URL enconde to support all email types
+        $link = $GLOBALS['domain'] . 'register' . $GLOBALS['dotPHP'] . '?id=' . urlencode($user_id) . '&verification_code=' . urlencode($user_activation_hash);
+
+
+
+        // generate the body of the email, the email supports HTML
+        $template_content = array(
+            array(
+                'name' => 'main',
+                'content' => '<h2>Welcome to ' . $GLOBALS['brand'] . ' ' .  $user_name . '</h2> <p> You\'re almost there but before we can begin you need to confirm your email address.</p>'),
+            array(
+                'name' => 'footer',
+                'content' => '<p>Simply click <a href=\'' . $link .' \'>here</a> to join the community.</p>')
+
+        );
+
+
+        $returned_message = $mandrill->messages->sendTemplate($template_name, $template_content, $message);
+
+
+
+        if($returned_message[0]['status'] == "sent") {
+            return true;
+        } else {
+            $this->errors[] = MESSAGE_VERIFICATION_MAIL_NOT_SENT . $mail->ErrorInfo;
+            return false;
+        }
+
+
+/*
+
         $mail = new PHPMailer;
+
 
         // please look into the config/config.php for much more info on how to use this!
         // use SMTP or use mail()
         if (EMAIL_USE_SMTP) {
             // Set mailer to use SMTP
             $mail->IsSMTP();
-            $mail->IsHTML(true);
             //useful for debugging, shows full SMTP errors
             //$mail->SMTPDebug = 1; // debugging: 1 = errors and messages, 2 = messages only
             // Enable SMTP authentication
@@ -203,11 +276,11 @@ class Registration
         $mail->FromName = EMAIL_VERIFICATION_FROM_NAME;
         $mail->AddAddress($user_email);
         $mail->Subject = EMAIL_VERIFICATION_SUBJECT;
-        $mail->IsHTML(true);
+
         $link = EMAIL_VERIFICATION_URL.'?id='.urlencode($user_id).'&verification_code='.urlencode($user_activation_hash);
 
         // the link to your register.php, please set this value in config/email_verification.php
-        $mail->Body = 'Welcome <b>' . $_POST['user_name'] . '</b> to Minetract,<br>' . EMAIL_VERIFICATION_CONTENT.' <a href="' . $link . '">click here</a>';
+        $mail->Body = EMAIL_VERIFICATION_CONTENT.' '.$link;
 
         if(!$mail->Send()) {
             $this->errors[] = MESSAGE_VERIFICATION_MAIL_NOT_SENT . $mail->ErrorInfo;
@@ -215,7 +288,9 @@ class Registration
         } else {
             return true;
         }
+*/
     }
+
 
     /**
      * checks the id/verification code combination and set the user's activation status to true (=1) in the database

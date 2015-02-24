@@ -20,6 +20,7 @@ define("MESSAGE_EMAIL_SAME_LIKE_OLD_ONE", "Sorry, that email address is the same
 define("MESSAGE_EMAIL_TOO_LONG", "Email cannot be longer than 64 characters");
 define("MESSAGE_LINK_PARAMETER_EMPTY", "Empty link parameter data.");
 define("MESSAGE_LOGGED_OUT", "You have been logged out.");
+
 // The "login failed"-message is a security improved feedback that doesn't show a potential attacker if the user exists or not
 define("MESSAGE_LOGIN_FAILED", "Login failed.");
 define("MESSAGE_OLD_PASSWORD_WRONG", "Your OLD password was wrong.");
@@ -49,30 +50,30 @@ define("MESSAGE_USERNAME_INVALID", "Username does not fit the name scheme: only 
 define("MESSAGE_USERNAME_SAME_LIKE_OLD_ONE", "Sorry, that username is the same as your current one. Please choose another one.");
 
 // views
-define("WORDING_BACK_TO_LOGIN", "Back to Login Page");
+define("WORDING_BACK_TO_LOGIN", "Back to Account Summary");
 define("WORDING_CHANGE_EMAIL", "Change email");
 define("WORDING_CHANGE_PASSWORD", "Change password");
 define("WORDING_CHANGE_USERNAME", "Change username");
 define("WORDING_CURRENTLY", "currently");
 define("WORDING_EDIT_USER_DATA", "Edit user data");
-define("WORDING_EDIT_YOUR_CREDENTIALS", "You are logged in and can edit your credentials here");
+define("WORDING_EDIT_YOUR_CREDENTIALS", " is logged in - change your details");
 define("WORDING_FORGOT_MY_PASSWORD", "I forgot my password");
 define("WORDING_LOGIN", "Log in");
 define("WORDING_LOGOUT", "Log out");
 define("WORDING_NEW_EMAIL", "New email");
 define("WORDING_NEW_PASSWORD", "New password");
 define("WORDING_NEW_PASSWORD_REPEAT", "Repeat new password");
-define("WORDING_NEW_USERNAME", "New username (username cannot be empty and must be azAZ09 and 2-64 characters)");
+define("WORDING_NEW_USERNAME", "New username (no symbols)");
 define("WORDING_OLD_PASSWORD", "Your OLD Password");
 define("WORDING_PASSWORD", "Password");
 define("WORDING_PROFILE_PICTURE", "Your profile picture (from gravatar):");
 define("WORDING_REGISTER", "Register");
 define("WORDING_REGISTER_NEW_ACCOUNT", "Register new account");
-define("WORDING_REGISTRATION_CAPTCHA", "Please enter these characters");
-define("WORDING_REGISTRATION_EMAIL", "User's email (please provide a real email address, you'll get a verification mail with an activation link)");
-define("WORDING_REGISTRATION_PASSWORD", "Password (min. 6 characters!)");
-define("WORDING_REGISTRATION_PASSWORD_REPEAT", "Password repeat");
-define("WORDING_REGISTRATION_USERNAME", "Username (only letters and numbers, 2 to 64 characters)");
+define("WORDING_REGISTRATION_CAPTCHA", "Fill out the above captcha");
+define("WORDING_REGISTRATION_EMAIL", "Your email address");
+define("WORDING_REGISTRATION_PASSWORD", "Your password");
+define("WORDING_REGISTRATION_PASSWORD_REPEAT", "Confirm Password");
+define("WORDING_REGISTRATION_USERNAME", "Your Username");
 define("WORDING_REMEMBER_ME", "Keep me logged in (for 2 weeks)");
 define("WORDING_REQUEST_PASSWORD_RESET", "Request a password reset. Enter your username and you'll get a mail with instructions:");
 define("WORDING_RESET_PASSWORD", "Reset my password");

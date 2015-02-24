@@ -1,386 +1,155 @@
-<style type="text/css">
-	.news-post {
-		padding-top: 10px;
-	}
-	.tooltip-inner {
-	padding: 10px;
-	font-size: 12px;
-	width: initial !important;
-	text-align: center;
-}
-	</style>
-<?php
-
-	// Count all the users inside our users table
-	require('classes/CountUsersFunction.php');
-	$field = 'user_id';
-	$condition = "";
-	$DB_Table = 'users';
-	$fieldArray = fieldCount($field, $condition, $DB_Table);
-	$i=0;
-	while( $i < count ($fieldArray) )
-	{
-	    $totalCount = $totalCount + $fieldArray[$i]['count'];
-	    $i++;
-	}
-
-	function toDashes($text) { 
-	    $text = strtolower(htmlentities($text)); 
-	    $text = str_replace(get_html_translation_table(), " ", $text);
-	    $text = str_replace(" ", "-", $text);
-	   	return $text;
-	}
-
-	function toSpaces($string) {
-		$string = str_replace("-", " ", $string);
-		return $string;
-	}
-
-	function limitString($string, $limit = 100) {
-	    // Return early if the string is already shorter than the limit
-	    if(strlen($string) < $limit) {return $string;}
-
-	    $regex = "/(.{1,$limit})\b/";
-	    preg_match($regex, $string, $matches);
-	    return $matches[1];
-	}
-
-	function getUsername($swag) {
-		// get username
-		// Load the poosts 			
-		$DB_HOST = DB_HOST;
-		$DB_NAME = DB_NAME;
-		try{
-		    $dbh = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", DB_USER, DB_PASS);
-		    // Communication
-		    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		    $stmt = $dbh->prepare("SELECT `user_name` FROM users where `user_id` = '" . $swag . "'");
-		    $stmt->execute();
-		    $author=$stmt->fetchAll(PDO::FETCH_ASSOC);
-		    $dbh = null;
-
-		} catch(PDOException $e) { 
-			echo $e->getMessage(); 
-		}
-
-		return $author[0]['user_name'];
-	}
-
-	function getEmail($swag) {
-		// get username
-		// Load the poosts 			
-		$DB_HOST = DB_HOST;
-		$DB_NAME = DB_NAME;
-		try{
-		    $dbh = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", DB_USER, DB_PASS);
-		    // Communication
-		    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		    $stmt = $dbh->prepare("SELECT `user_email` FROM users where `user_id` = '" . $swag . "'");
-		    $stmt->execute();
-		    $author=$stmt->fetchAll(PDO::FETCH_ASSOC);
-		    $dbh = null;
-
-		} catch(PDOException $e) { 
-			echo $e->getMessage(); 
-		}
-
-		return $author[0]['user_email'];
-	}
-
-	function objectToArray($d) {
-		if (is_object($d)) {
-			$d = get_object_vars($d);
-		}
-		if (is_array($d)) {
-			return array_map(__FUNCTION__, $d);
-		}
-		else {
-			return $d;
-		}
-	}
-
-?>	
-
-
-<section class="bg-1 widewrapper text-center">
-		<?php 
-			// show potential errors / feedback (from login object)
-				    if ($login->errors) {
-				        foreach ($login->errors as $error) {
-				            echo $error;
-				        }
-				    } elseif ($login->messages) {
-				        foreach ($login->messages as $message) {
-				            echo $message;
-				        }
-				    } else {
-						echo "
-							<h1><span class='timer'>" . $totalCount . "</span></h1>
-							<p class='lead'>freelancers that are ready for you.</p>";
-					}
-		?>
-	<button type="button" class="btn btn-minetract btn-lg">About</button>
-	<button type="button" class="btn btn-minetract btn-lg">Marketplace</button>
-</section>
-
-<div class="container">
-	<div class="main">
-		<section>
-			<h3>Featured</h3>
-			<p class="lead">just for you</p>
-		</section>
-		<div class="row featured">
-			<div class="col-md-3 col-xs-6"><div class="inner-featured"></div></div>
-			<div class="col-md-3 col-xs-6"><div class="inner-featured"></div></div>
-			<div class="col-md-3 col-xs-6"><div class="inner-featured"></div></div>
-			<div class="col-md-3 col-xs-6"><div class="inner-featured"></div></div>
-		</div>
-	</div>
-</div>
-
-<div class="grey">
+<div class="jumbotron">
 	<div class="container">
-		<div class="row grey-featured featured news-twitter">
-			<div class="col-md-6">				
-				<h3>Recent Changes</h3>
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3">
 
-				<p class="lead">view all</p>
-				<div class="row">
-					
-					<?php 
-						// Load the poosts 			
-						$DB_HOST = DB_HOST;
-						$DB_NAME = DB_NAME;
-						try{
-						    $dbh = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", DB_USER, DB_PASS);
-						    // Communication
-						    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-						    $stmt = $dbh->prepare("SELECT * FROM news");
-						    $stmt->execute();
-						    $result=$stmt->fetchAll(PDO::FETCH_ASSOC);
-						    $dbh = null;
+				<h1 class="slideDown"><?php echo $brand; ?></h1>
+				<p class="slideUp">A beautiful start to your amazing project<br>With a full, secure backend user system and bootstrap compatibility </p>
 
-						} catch(PDOException $e) { 
-							echo $e->getMessage(); 
-						}
-
-
-						// echo "<pre>";
-						// print_r($result);
-						// echo "</pre>";
-
-						// loop through the posts
-						$i = 0;
-						$count = count($result);
-
-						while ( $i < $count) {
-
-
-							////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-							// COMMENTS
-
-							// load the user data of who posted each news post
-							try{
-								$dbh = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", DB_USER, DB_PASS);
-								// Communication
-								$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-								$stmt = $dbh->prepare("SELECT * FROM `news_comments` where `newsc_post` = '" . $result[$i]['news_id'] . "'");
-								$stmt->execute();
-								$comments = array_reverse($comments=$stmt->fetchAll(PDO::FETCH_ASSOC));
-								$dbh = null;
-
-							} catch(PDOException $e) { 
-								echo $e->getMessage(); 
-							}
-
-							// echo "<pre>";
-							// print_r($comments);
-							// echo "</pre>";
-
-						
-
-
-
-							////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-							// AUTHOR
-
-
-							 
-							// Gratar picture of author
-							$authorPic = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( getEmail($result[$i]['news_author']) ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
-
-							// Debug of author
-							// echo "<pre>";
-							// print_r($author);
-							// echo "</pre>";
-		 
-							$d = strtotime($result[$i]['news_date']);
-							// echo "Created date is " . date("dS M Y h:i:sa", $d);
-
-
-							$count2 = count($comments);
-
-							echo "
-								<a href='news/?post=" . toDashes($result[$i]['news_title']) . "'>
-									<div class='news-post animate'>
-						 				<h3>" . $result[$i]['news_title'] . "</h3>
-						 				<h5>" . date("h:ia - dS F", $d) . "</h5>
-										<a class='profile' href='" . $mt_url . "user/" . getUsername($result[$i]['news_author']) . "'> 
-											By&nbsp;&nbsp;<h4 class='animate'>
-												<img src='" . $authorPic . "'>
-												" . getUsername($result[$i]['news_author']) . "
-											</h4>
-										</a>
-
-										$count2 comments
-							";
-
-							$i2 = 0;
-
-							// to force only to display 3 latests commenters 
-							if ($count2 > 3) {
-								$count2 = 3;
-							}
-
-							/* while ( $i2 < $count2) {
-
-
-								// Gratar picture of author
-								$authorPic = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( getEmail($comments[$i2]['newsc_user']) ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
-
-								if ($i2 == 0) {	
-									// If there is only one comment then correct thr grammar
-									if ($count2 == 1) {
-										$oneComment = "Comment";
-									} else {
-										$oneComment = "Comments";
-									}
-									
-									echo "
-										<a style='margin-left: 60px;' class='profile' href='" . $mt_url . "user/" . getUsername($comments[$i2]['newsc_user']) . "'> 
-											Latest " . $oneComment . " From &nbsp;&nbsp; <h4 class='animate'>
-												<img src='" . $authorPic . "'>
-												" . getUsername($comments[$i2]['newsc_user']) . "
-											</h4>
-										</a>
-									";
-								} else {
-									echo "
-										<a style='margin-left: 20px;' class='profile' href='" . $mt_url . "user/" . getUsername($comments[$i2]['newsc_user']) . "'> 
-											<h4 class='animate'>
-												<img src='" . $authorPic . "'>
-												" . getUsername($comments[$i2]['newsc_user']) . "
-											</h4>
-										</a>
-										";
-								}
-									$i2++;
-
-							} */
-
-							echo "
-
-									</div>
-								</a>
-							
-							";
-
-							$i++;
-						}
-
-
-					?>
-
-				</div>
-				
-			</div>
-			<div class="col-md-6">
-				<h3>Latest Tweets</h3>
-				<p class="lead">@minetract</p>
-				<div class="row">
-					<?php include ('assets/twitter.php'); ?>
-				</div>
 			</div>
 		</div>
 	</div>
+
 </div>
 
 <div class="container">
-	<div class="main">
-		<div class="row">
-			<div class="col-md-6">
-				<section>
-					<h3>Users Most Recently Registered</h3>
-				</section>
+	<div class="row">
+		<h2 align="center">What does <?php echo $brand; ?> come with?</h2>
+		<div class="col-md-6">
+			<h3>Front end</h3>
+
+			<div class="well">
+				<div class="row">			
+					<div class="col-md-12">
+						<h4><i class="fa fa-plug"></i> Compatible and Responsive</h4>
+					</div>
+					<div class="col-md-5">
+						<p>
+							Structured code, categorized ready for you to jump into straight away with support from your favorite libraries and support mobiles.
+						</p>
+					</div>	
+					<div class="col-md-7">
+						<ul>
+							<li>Come with <a target="_blank" href="http://jquery.com/">jQuery 2.1.2</a></li>
+							<li>Integrated with <a target="_blank" href="http://getbootstrap.com/">Bootstrap 3.3.1</a></li>
+							<li>Along with <a target="_blank" href="http://fontawesome.io/">Font Awesome 4.2.0</a></li>
+						</ul>
+					</div>	
+				</div>					
 			</div>
-			<div class="col-md-6">
-				<!--<section class="spacing">
-					<h3><br></h3>
-					<span class="lead">Builders</span>
-					<span class="lead">Artists</span>
-					<span class="lead">Programmers</span>
-				</section>-->
+			
+			<div class="well">
+				<div class="row">			
+					<div class="col-md-12">
+						<h4><i class="fa fa-align-justify"></i> Dynamic Footers</h4>
+					</div>
+					<div class="col-md-12">
+						<p>
+							The <a target="_blank" href="http://codepen.io/LukeXF/pen/EaPVLJ">dynamic footer</a> is a sticky on demand, when page content does not span the whole height the footer will remain nicely at the bottom. That is until the content is bigger than the page, then it will act like normal footer.
+						</p>
+					</div>		
+				</div>					
 			</div>
-		</div>
-		<div class="row featured">
-			<?php 
-						// Load the poosts 			
-						$DB_HOST = DB_HOST;
-						$DB_NAME = DB_NAME;
-						try{
-						    $dbh = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", DB_USER, DB_PASS);
-						    // Communication
-						    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-						    $stmt = $dbh->prepare("SELECT * FROM users LIMIT 22");
-						    $stmt->execute();
-						    $result=$stmt->fetchAll(PDO::FETCH_ASSOC);
-						    $dbh = null;
-
-						} catch(PDOException $e) { 
-							echo $e->getMessage(); 
-						}
-
-
-						// echo "<pre>";
-						// print_r($result);
-						// echo "</pre>";
-
-						// loop through the posts
-						$i = 0;
-						$count = count($result);
-
-
-						while ( $i < $count) {
-
-
-							// Gratar picture of author
-							$authorPic = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( $result[$i]['user_email'] ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
-
-
-							echo "
-
-							<a class='profile ' href='http://dev.minetract.net/user/" . $result[$i]['user_name'] . "'> 
-								<div 
-									class='recently_registered' 
-									data-placement='bottom' title='' 
-									data-tooltip='tooltip' 
-									data-original-title='" . $result[$i]['user_name'] . "' 
-									style='background: url(" . $authorPic . ") #09C6E8'
-								>
-
-								</div>
-							</a>
+			
+			<div class="well">
+				<div class="row">			
+					<div class="col-md-12">
+						<h4><i class="fa fa-film"></i> Animated transitions and slide-ins</h4>
+					</div>
+					<div class="col-md-12">
+						<p>
+							Adding <code>.animate</code> to any HTML elements will make any transitions (such as hover over) fade into the next style. adding <code>.slideUp</code> or <code>.slideDown</code> will slide in your content. Easily adaptable for more animations
+						</p>
+					</div>		
+				</div>					
+			</div>
+			
+			<div class="well">
+				<div class="row">			
+					<div class="col-md-12">
+						<h4><i class="fa fa-code"></i> Designed for Developers</h4>
+					</div>
+					<div class="col-md-12">
+						<p>
+							<?php echo $brand; ?> is designed to make starting your project as simple and hassle free as possible. The great thing to know, is that the <?php echo $brand; ?> family of products work with this base version, so if you want to save even more time you can by downloading our other products.
+						</p>
+					</div>		
+				</div>					
+			</div>
 			
 
-							";
 
-							$i++;
-						}
-
-
-					?>
-	
 
 		</div>
+
+		<div class="col-md-6">
+			<h3 align="right">Back end</h3>
+
+
+			<div class="well">
+				<div class="row">			
+					<div class="col-md-12">
+						<h4><i class="fa fa-user"></i> Fully developed and secure login system</h4>
+					</div>					
+					<div class="col-md-12">						
+						<ul>
+							<li>Supports password resets with unique temporary tokens</li>
+							<li>Unique cookies allows the option to stay logged in for 2 weeks</li>
+							<li>Multiple device login for end user at the same time is now supported</li>
+							<li>Cleaver PDO queries to the database will help prevent SQL injections</li>
+							<li>Fully salted and hashed passwords with recorded failed login attempts</li>
+							<li>Brute force attacks recorded and prevented</li>
+							<li>Username and Email login supported with tooltip support</li>
+						</ul>
+					</div>	
+				</div>					
+			</div>
+
+			<div class="well">
+				<div class="row">			
+					<div class="col-md-12">
+						<h4><i class="fa fa-pencil"></i> Sweet editable user profiles</h4>
+					</div>					
+					<div class="col-md-12">						
+						<ul>
+							<li>Users can edit all their data safely on their profile</li>
+							<li>All profiles images load through the trusted <a target="_blank" href="http://en.gravatar.com/">Gravatar</a> site</li>
+							<li>Mail sending for registration and forgot password through PHPMailer</li>
+							<li>Captcha and email confirmation on registration to only let in humans</li>
+						</ul>
+					</div>	
+				</div>					
+			</div>
+
+			<div class="well">
+				<div class="row">			
+					<div class="col-md-12">
+						<h4><i class="fa fa-arrows-alt"></i> Scalable with free updates </h4>
+					</div>					
+					<div class="col-md-12">						
+						<ul>
+							<li><?php echo $brand; ?> is modulated and ready for you to easily expand upon</li>
+							<li>Bugs when reported are fixed and updates are included in your purchase</li>
+							<li>Suggestions and feedback will grow the project overtime to become better</li>
+						</ul>
+					</div>	
+				</div>					
+			</div>
+
+			<div class="well" style="opacity:0.5;">
+				<div class="row">			
+					<div class="col-md-12">
+						<h4><i class="fa fa-bolt"></i> Admin management panel <i class="small">Coming soon</i></h4>
+					</div>					
+					<div class="col-md-12">
+						<p>
+							We are working on an admin panel that provides full management to the users system and any other <?php echo $brand; ?> extensions installed into the system.
+						</p>
+					</div>	
+				</div>					
+			</div>
+
+		</div>
+
 	</div>
 </div>

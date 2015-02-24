@@ -1,90 +1,90 @@
 <?php
-	require_once($mt_path . 'translations/en.php');
-	require_once($mt_path . 'libraries/PHPMailer.php');
+	if (version_compare(PHP_VERSION, '5.3.7', '<')) {
+	    exit('Sorry, this script does not run on a PHP version smaller than 5.3.7 !');
+	} else if (version_compare(PHP_VERSION, '5.5.0', '<')) {
+	    require_once('lib/password_compatibility_library.php');
+	}
 
-	// Sets the values for the navbar
+	require_once('lib/config.php');
+	require_once('translations/en.php');
+	require_once('lib/PHPMailer.php');
+	require_once('classes/Login.php');
+	$login = new Login();
+
+	date_default_timezone_set('UTC');
+
+
+	$grav_url = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( $_SESSION['user_email'] ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size; 
+
+	$navlogin = "Welcome <b>" . $_SESSION['user_name'] . "</b>";
+
 	$navbar = array(
-		"Features" =>   array(
+		/*"Contact" =>   array(
 			"active" => "",
-			"url" => $mt_url . "features",
+			"url" => "#",
 			"submenu" => array()
 		),
 
-		"Pricing" => array(
+		"Purchase $brand" => array(
 			"active" => "",
-			"url" => $mt_url . "pricing",          
+			"url" => "#",          
 			"submenu" => array()
-		)
+		)*/
 
 	);
-	// Sets the values for the navbar
-	$navbar2 = array(
-		"Marketplace" =>   array(
-			"active" => "",
-			"url" => $mt_url . "marketplace",
-			"submenu" => array()
-		),
+	if ($login->isUserLoggedIn() == true) {
+		$navbar2 = array(
+			"Follow Us" =>   array(
+				"active" => "",
+				"url" => "https://twitter.com/ElementsWorks' target='_blank",
+				"submenu" => array()
+			),
 
-		"About" =>   array(
-			"active" => "",
-			"url" => $mt_url . "about",
-			"submenu" => array()
-		),
+			"$navlogin" => array(
+				"active" => "",
+				"url" => "",          
+				"submenu" => array(
+					"Summary" => "account",
+					"logout"  => "?logout"
+				)
+			)
+		);
 
-		"News" =>   array(
-			"active" => "",
-			"url" => $mt_url . "news",
-			"submenu" => array()
-		),
+	} else {
+		$navbar2 = array(
+			"Register" =>   array(
+				"active" => "",
+				"url" => "register",
+				"submenu" => array()
+			),
 
-		"Contact" => array(
-			"active" => "",
-			"url" => $mt_url . "contact",          
-			"submenu" => array()
-		)
-
-	);
-
+			"Login" => array(
+				"active" => "",
+				"url" => "login",          
+				"submenu" => array()
+			)
+		);
+	}
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en" class="no-js">
+<html>
 	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+	    <meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="<?php echo $brand; ?>">
+		<meta name="author" content="me@luke.sx">
 
-		<?php
+	    <title><?php echo $brand; ?></title>
 
-		// Get the name of the page based off of the URL 
-		$titleName = ucfirst(basename($_SERVER['PHP_SELF'],'.php'));
-
-		// if the page name is not empty then display it in the title
-		// else assume we're on the page index
-		if (!empty($overrideTitleName)) {
-			$titleName = $overrideTitleName;
-		} elseif ($titleName == "Index") {
-			$titleName = "Home";
-		}
-
-		?>
-		
-		<title>Minetract | <?php echo $titleName; ?></title>
-
-		<meta name="description" content="Minetract - your one stop location for Minecraft freelancing and projects" />
-		<meta name="keywords" content="minetract, minecraft, mine craft, contracts, freelancing" />
-		<meta name="author" content="Jed Palmer, Samuel Oakes, Luke Brown" />
-		<link rel="icon" type="image/png" href="<?php echo $mt_url; ?>assets/img/logo-img.png">
-
-		<link href='http://fonts.googleapis.com/css?family=Montserrat|Raleway:300,400' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css"  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,400|Raleway:400,300' rel='stylesheet' type='text/css'>
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="<?php echo $domain; ?>assets/css/style.css">
+		<link rel="icon" type="image/ico" href="<?php echo $domain; ?>assets/img/favicon.ico">
 
-		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-		<link rel="stylesheet" type="text/css" href="<?php echo $mt_url; ?>assets/css/style.css" />
-		<link rel="stylesheet" type="text/css" href="<?php echo $mt_url; ?>assets/css/component.css" />
-		<script src="<?php echo $mt_url; ?>assets/js/modernizr.custom.js"></script>
+
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
+		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 	</head>
-
