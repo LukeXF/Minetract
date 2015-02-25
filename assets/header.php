@@ -7,9 +7,10 @@
 
 	require_once('lib/config.php');
 	require_once('translations/en.php');
-	require_once('lib/PHPMailer.php');
 	require_once('classes/Login.php');
+	require_once('classes/SiteFunctions.php');
 	$login = new Login();
+	$Functions = new SiteFunctions();
 
 	date_default_timezone_set('UTC');
 
@@ -54,13 +55,13 @@
 		$navbar2 = array(
 			"Register" =>   array(
 				"active" => "",
-				"url" => "register",
+				"url" => $domain . "register" . $dotPHP,
 				"submenu" => array()
 			),
 
 			"Login" => array(
 				"active" => "",
-				"url" => "login",          
+				"url" => $domain . "login" . $dotPHP,          
 				"submenu" => array()
 			)
 		);
@@ -74,7 +75,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="description" content="<?php echo $brand; ?>">
-		<meta name="author" content="me@luke.sx">
+		<meta name="author" content="Luke Brown, <?php echo $email; ?>">
 
 	    <title><?php echo $brand; ?></title>
 

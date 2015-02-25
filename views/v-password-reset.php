@@ -1,4 +1,3 @@
-<?php include('_header.php'); ?>
 
 <?php if ($login->passwordResetLinkIsValid() == true) { ?>
 <form method="post" action="password_reset.php" name="new_password_form">
