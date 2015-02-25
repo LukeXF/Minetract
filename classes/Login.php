@@ -5,7 +5,7 @@ class Login
 {
 
     // setup the predefined variables of this class
-    private $db_connection                  = null; // object $db_connection The database connectio    
+    private $db_connection                  = null; // object $db_connection The database connection
     private $user_id                        = null; // int $user_id The user's id    
     private $user_name                      = ""; // string $user_name The user's name
     private $user_email                     = ""; // string $user_email The user's mail
@@ -637,6 +637,9 @@ class Login
         }
     }
 
+
+
+
     // Edit the user's password, provided in the editing form
     public function editUserPassword($user_password_old, $user_password_new, $user_password_repeat)
     {
@@ -688,7 +691,7 @@ class Login
                     if ($query_update->rowCount()) {
 
                         // output that password was changed if the MySQL query 
-                        $this->messages[] = "Password successfully changed!");
+                        $this->messages[] = "Password successfully changed!";
 
 
                     } else {
@@ -697,24 +700,31 @@ class Login
                         $this->errors[] = "Sorry, your password changing failed.";
                     }
                 } else {
+
+                    // if the current password was entered incorrectly
                     $this->errors[] = "Your OLD password was wrong.";
                 }
             } else {
+
+                // if the password hash is invalid
                 $this->errors[] = "This user does not exist";
             }
         }
     }
 
-    /**
-     * Sets a random token into the database (that will verify the user when he/she comes back via the link
-     * in the email) and sends the according email.
-     */
+
+
+
+    // Sets a random token into the database (that will verify the user when he/she comes back via the link
+    // in the email) and sends the according email.
     public function setPasswordResetDatabaseTokenAndSendMail($user_name)
     {
+        // stop database flooding by timing the usenrame
         $user_name = trim($user_name);
 
+        // if the username is empty when trying to reset the email
         if (empty($user_name)) {
-            $this->errors[] = MESSAGE_USERNAME_EMPTY;
+            $this->errors[] = "Username field was empty";
 
         } else {
             // generate timestamp (to see when exactly the user (or an attacker) requested the password reset mail)
@@ -728,13 +738,17 @@ class Login
             // if this user exists
             if (isset($result_row->user_id)) {
 
-                // database query:
+                // database query to update the password reset hash before sending the email link
                 $query_update = $this->db_connection->prepare('UPDATE users SET user_password_reset_hash = :user_password_reset_hash,
                                                                user_password_reset_timestamp = :user_password_reset_timestamp
                                                                WHERE user_name = :user_name');
+                // prepared statement of the password reset hash
                 $query_update->bindValue(':user_password_reset_hash', $user_password_reset_hash, PDO::PARAM_STR);
+                // prepared statement of the timestamp to allow expiring of links
                 $query_update->bindValue(':user_password_reset_timestamp', $temporary_timestamp, PDO::PARAM_INT);
+                // prepared statement of the username
                 $query_update->bindValue(':user_name', $user_name, PDO::PARAM_STR);
+                // excute the query to update the password reset hash
                 $query_update->execute();
 
                 // check if exactly one row was successfully changed:
@@ -743,165 +757,227 @@ class Login
                     $this->sendPasswordResetMail($user_name, $result_row->user_email, $user_password_reset_hash);
                     return true;
                 } else {
-                    $this->errors[] = MESSAGE_DATABASE_ERROR;
+                    // if there is no return data
+                    $this->errors[] = "Database connection problem.";
                 }
             } else {
-                $this->errors[] = MESSAGE_USER_DOES_NOT_EXIST;
+                // if the user id is not valid
+                $this->errors[] = "This user does not exist";
             }
         }
         // return false (this method only returns true when the database entry has been set successfully)
         return false;
     }
 
-    /**
-     * Sends the password-reset-email.
-     */
+
+
+
+    // sends an email to the provided email address to reset password, returns if the email could be sent or not (boolean)
     public function sendPasswordResetMail($user_name, $user_email, $user_password_reset_hash)
     {
-        $mail = new PHPMailer;
 
-        // please look into the config/config.php for much more info on how to use this!
-        // use SMTP or use mail()
-        if (EMAIL_USE_SMTP) {
-            // Set mailer to use SMTP
-            $mail->IsSMTP();
-            //useful for debugging, shows full SMTP errors
-            //$mail->SMTPDebug = 1; // debugging: 1 = errors and messages, 2 = messages only
-            // Enable SMTP authentication
-            $mail->SMTPAuth = EMAIL_SMTP_AUTH;
-            // Enable encryption, usually SSL/TLS
-            if (defined(EMAIL_SMTP_ENCRYPTION)) {
-                $mail->SMTPSecure = EMAIL_SMTP_ENCRYPTION;
-            }
-            // Specify host server
-            $mail->Host = EMAIL_SMTP_HOST;
-            $mail->Username = EMAIL_SMTP_USERNAME;
-            $mail->Password = EMAIL_SMTP_PASSWORD;
-            $mail->Port = EMAIL_SMTP_PORT;
-        } else {
-            $mail->IsMail();
-        }
 
-        $mail->From = EMAIL_PASSWORDRESET_FROM;
-        $mail->FromName = EMAIL_PASSWORDRESET_FROM_NAME;
-        $mail->AddAddress($user_email);
-        $mail->Subject = EMAIL_PASSWORDRESET_SUBJECT;
+        // include the Mandrill PHP Wrapper
+        require 'lib/mandrill/src/Mandrill.php';
 
-        $link    = EMAIL_PASSWORDRESET_URL.'?user_name='.urlencode($user_name).'&verification_code='.urlencode($user_password_reset_hash);
-        $mail->Body = EMAIL_PASSWORDRESET_CONTENT . ' ' . $link;
 
-        if(!$mail->Send()) {
-            $this->errors[] = MESSAGE_PASSWORD_RESET_MAIL_FAILED . $mail->ErrorInfo;
-            return false;
-        } else {
-            $this->messages[] = MESSAGE_PASSWORD_RESET_MAIL_SUCCESSFULLY_SENT;
+        // start a new instants of the Mandrill class
+        $mandrill = new Mandrill($GLOBALS['mandrillAPIKey']);
+
+
+        // generate the message that is sent to the user upon sending an email
+        $message = array(
+
+            // the subject will be sent as the email subject.
+            'subject' => 'Reset Password on ' . $GLOBALS['brand'] . ' for ' . $user_name,
+
+            // this variable is stored in the config file
+            // for this to work over SMTP you must allow Mandrill's confirmation txt record
+            // on your DNS for your domain that you are using
+            'from_email' => $GLOBALS['email'],
+
+            // the visible name that is displayed as the sender on things like Google Mail
+            'from_name' => 'The ' . $GLOBALS['brand'] . ' Team',
+
+            // array of where to send the email to, multiple arrays for multiple people
+            'to' => array(
+                array('email' => $user_email, 'name' => $user_name)
+            )
+
+        );
+
+
+        // the name of the template stored on the Mandrill website (defined in the config)
+        $template_name = $GLOBALS['mandrillTemplateName'];
+
+
+        // generates the link for the verfication using URL enconde to support all email types
+        $link = $GLOBALS['domain'] . 'register' . $GLOBALS['dotPHP'] . '?user_name=' . urlencode($user_name) . '&verification_code=' . urlencode($user_password_reset_hash);
+
+
+
+        // generate the body of the email, the email supports HTML
+        $template_content = array(
+            array(
+                'name' => 'main',
+                'content' => '<h2>Welcome back to ' . $GLOBALS['brand'] . ' ' .  $user_name . '</h2> <p> You have requested a password reset via our website, if this was not you then please ignore this email or contact our support if you believe this an issue.</p>'),
+            array(
+                'name' => 'footer',
+                'content' => '<p>Simply click <a href=\'' . $link .' \'>here</a> to join the community.</p>')
+
+        );
+
+        // the returned array sent from Mandrill's servers, print this to debug
+        $returned_message = $mandrill->messages->sendTemplate($template_name, $template_content, $message);
+
+
+        // the final part of this function, if the Mandril repsonse is good, then return true
+        if($returned_message[0]['status'] == "sent") {
+
+            // everything worked, so return true
             return true;
+
+
+        } else {
+
+            // Mandrill returns an error message, so tell the user that it was unsuccessful and return false
+            $this->errors[] = "The reset password mail NOT successfully sent! Error: " . $mail->ErrorInfo;
+            return false;
         }
     }
 
-    /**
-     * Checks if the verification string in the account verification mail is valid and matches to the user.
-     */
+
+
+
+
+    // Checks if the verification string in the account verification mail is valid and matches to the user.
     public function checkIfEmailVerificationCodeIsValid($user_name, $verification_code)
     {
+        // prevent database flooding - trim the username
         $user_name = trim($user_name);
 
+        // if the username is empty or the code is empty
         if (empty($user_name) || empty($verification_code)) {
-            $this->errors[] = MESSAGE_LINK_PARAMETER_EMPTY;
+
+            // empty message error
+            $this->errors[] = "Empty link parameter data.";
+
+
         } else {
+
             // database query, getting all the info of the selected user
             $result_row = $this->getUserData($user_name);
 
             // if this user exists and have the same hash in database
             if (isset($result_row->user_id) && $result_row->user_password_reset_hash == $verification_code) {
 
+                // calculate an hour ago in seconds
                 $timestamp_one_hour_ago = time() - 3600; // 3600 seconds are 1 hour
 
+                // if the time is within an hour ago
                 if ($result_row->user_password_reset_timestamp > $timestamp_one_hour_ago) {
+
                     // set the marker to true, making it possible to show the password reset edit form view
                     $this->password_reset_link_is_valid = true;
+
                 } else {
-                    $this->errors[] = MESSAGE_RESET_LINK_HAS_EXPIRED;
+
+                    // the link has expired because it has been longer than an hour, return error
+                    $this->errors[] = "Your reset link has expired. Please use the reset link within one hour.";
                 }
             } else {
-                $this->errors[] = MESSAGE_USER_DOES_NOT_EXIST;
+
+                //the user or link is invalid
+                $this->errors[] = "This user does not exist";
+
             }
         }
     }
 
-    /**
-     * Checks and writes the new password.
-     */
+    // Checks and writes the new password as the password has been reset
     public function editNewPassword($user_name, $user_password_reset_hash, $user_password_new, $user_password_repeat)
     {
-        // TODO: timestamp!
+        // trip the username to prevent database flooding
         $user_name = trim($user_name);
 
+        // if anyhing is empty when changing the password
         if (empty($user_name) || empty($user_password_reset_hash) || empty($user_password_new) || empty($user_password_repeat)) {
-            $this->errors[] = MESSAGE_PASSWORD_EMPTY;
+
+            // error message
+            $this->errors[] = "Password field was empty";
+
+
         // is the repeat password identical to password
         } else if ($user_password_new !== $user_password_repeat) {
-            $this->errors[] = MESSAGE_PASSWORD_BAD_CONFIRM;
+
+            // passwords do not match error
+            $this->errors[] = "The passwords do not match";
+
+
         // password need to have a minimum length of 6 characters
         } else if (strlen($user_password_new) < 6) {
-            $this->errors[] = MESSAGE_PASSWORD_TOO_SHORT;
+
+            // the password is too short error
+            $this->errors[] = "Password has a minimum length of 6 characters";
+
+
         // if database connection opened
         } else if ($this->databaseConnection()) {
-            // now it gets a little bit crazy: check if we have a constant HASH_COST_FACTOR defined (in config/hashing.php),
-            // if so: put the value into $hash_cost_factor, if not, make $hash_cost_factor = null
+            // get the hash cost factor from the config file, or set to null if it doesn't exist there.
             $hash_cost_factor = (defined('HASH_COST_FACTOR') ? HASH_COST_FACTOR : null);
 
             // crypt the user's password with the PHP 5.5's password_hash() function, results in a 60 character hash string
-            // the PASSWORD_DEFAULT constant is defined by the PHP 5.5, or if you are using PHP 5.3/5.4, by the password hashing
-            // compatibility library. the third parameter looks a little bit shitty, but that's how those PHP 5.5 functions
-            // want the parameter: as an array with, currently only used with 'cost' => XX.
             $user_password_hash = password_hash($user_password_new, PASSWORD_DEFAULT, array('cost' => $hash_cost_factor));
 
-            // write users new hash into database
+            // write users new hash into database along with the setting the reset hash to null
             $query_update = $this->db_connection->prepare('UPDATE users SET user_password_hash = :user_password_hash,
                                                            user_password_reset_hash = NULL, user_password_reset_timestamp = NULL
                                                            WHERE user_name = :user_name AND user_password_reset_hash = :user_password_reset_hash');
+            // prepared statement for the password hash
             $query_update->bindValue(':user_password_hash', $user_password_hash, PDO::PARAM_STR);
+            // prepared statement for the reset password hash (this is only used to find the password hash so it can be set to null)
             $query_update->bindValue(':user_password_reset_hash', $user_password_reset_hash, PDO::PARAM_STR);
+            // prepared statement for the username to confirm that the user that is been edited is the correct one
             $query_update->bindValue(':user_name', $user_name, PDO::PARAM_STR);
+            // excute out the password hash update
             $query_update->execute();
 
             // check if exactly one row was successfully changed:
             if ($query_update->rowCount() == 1) {
+
+                // return the password reset check to true
                 $this->password_reset_was_successful = true;
-                $this->messages[] = MESSAGE_PASSWORD_CHANGED_SUCCESSFULLY;
+
+                // inform the user everything worked and the password has been updated
+                $this->messages[] = "Password successfully changed!";
+
             } else {
-                $this->errors[] = MESSAGE_PASSWORD_CHANGE_FAILED;
+
+                // if there was an error
+                $this->errors[] = "Sorry, your password changing failed.";
+
             }
         }
     }
 
-    /**
-     * Gets the success state of the password-reset-link-validation.
-     * TODO: should be more like getPasswordResetLinkValidationStatus
-     * @return boolean
-     */
+    // Gets the success state of the password-reset-link-validation.
     public function passwordResetLinkIsValid()
     {
+        // used in the verification check function
         return $this->password_reset_link_is_valid;
     }
 
-    /**
-     * Gets the success state of the password-reset action.
-     * TODO: should be more like getPasswordResetSuccessStatus
-     * @return boolean
-     */
+    // Gets the success state of the password-reset action.
     public function passwordResetWasSuccessful()
-    {
+    {   
+        // if the password reset was successful
         return $this->password_reset_was_successful;
     }
 
-    /**
-     * Gets the username
-     * @return string username
-     */
+    // Gets the username
     public function getUsername()
     {
+        // simple function to return the username
         return $this->user_name;
     }
 
@@ -922,6 +998,7 @@ class Login
      */
     public function getGravatarImageUrl($email, $s = 50, $d = 'mm', $r = 'g', $atts = array() )
     {
+        // this is a function for the Gravatar website
         $url = 'http://www.gravatar.com/avatar/';
         $url .= md5(strtolower(trim($email)));
         $url .= "?s=$s&d=$d&r=$r&f=y";
