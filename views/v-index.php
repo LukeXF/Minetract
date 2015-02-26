@@ -16,10 +16,12 @@
 	<div class="row">
 		<h2 align="center">What users are registered here?</h2>
 
-		<?php $SiteFunctions->debug($SiteFunctions->getUserData('benpowley@gmail.com')) ?>
+		<?php $SiteFunctions->userTag('me@luke.sx'); ?>
 
-		<?php $SiteFunctions->userTag('me@luke.sx') ?>
+		<?php $SiteFunctions->getNewestRegistered(); ?>
 
+		<?php $SiteFunctions->debug($news->getNewsFeed(2)); ?>
+		<?php $news->getNewsFeed(2); ?>
 	</div>
 </div>
 

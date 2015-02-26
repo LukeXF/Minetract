@@ -137,13 +137,11 @@ class SiteFunctions
     	if ($this->getUserData($input) == false) {
     		
 
-                // If there is no error, output the the error function
+               // If there is no error, output the the error function
                $this->error('No user found');
 
 
     	} else {
-
-			echo "<H1>". $this->getUserData($input)->user_name . "</h1>";
 
 	    	echo "
 	    	<a class='profile' href='" . $GLOBALS['brand'] . "user/" . $username . "'> 
@@ -164,7 +162,7 @@ class SiteFunctions
 
 
     // Search into database for the user data of user_name specified as parameter (selects all data)
-    public function getUserData($username)
+    private function getUserData($username)
     {
         // if database connection opened
         if ($this->databaseConnection()) {
@@ -191,10 +189,92 @@ class SiteFunctions
 
 
 
+
+    // Display the latest registered users
+    public function getNewestRegistered($amount = 20)
+    {
+
+		// if database connection opened
+		if ($this->databaseConnection()) {
+
+		    // database query, getting the latest registered users in descending ordered
+		    $query_latestUsers = $this->db_connection->prepare("SELECT `user_name`, `user_email` 
+		    													FROM `users` 
+		    													ORDER BY `user_registration_datetime` 
+		    													DESC LIMIT :amount");
+		    // prepared statement for the amount, note: has been trimmed and set to int before the query can accept an int
+		    $query_latestUsers->bindValue(':amount', $amount, PDO::PARAM_INT);
+		    // execute query
+		    $query_latestUsers->execute();
+
+		    // set variable for the returned data
+		    $latestUsers = $query_latestUsers->fetchAll();
+
+		    	// if there is actually some results then continue to echo them out
+				if ($query_latestUsers->rowCount() > 0) {
+
+					// count the amount of users returned from the query
+					$count = count($latestUsers);
+
+					// add a counter to start incrementing 
+					$i = 0;					
+
+					// place all results inside a class for formatting
+					echo "<div class='recently_registered_row'>";
+
+					// loop through each user with this while loop until $i equals the total amount of users
+					while ($i < $count) {
+
+							// echo out the clickable link and class name
+							echo "<a class='profile animateAll' href='" . $GLOBALS['domain'] . "users/" . $latestUsers[$i]['user_name'] . "'>";
+							
+							// set variable for the users profile picture 
+							$gravImg = $this->get_gravatar($latestUsers[$i]['user_email']);
+						
+							// echo out the image
+							echo "<div class='recently_registered' 
+							data-placement='bottom' title='' data-tooltip='tooltip' 
+							data-original-title='" . $latestUsers[$i]['user_name'] . "' 
+							style='background: url(" . $gravImg . ") #09C6E8'>
+							</div>";
+
+							// close off the clickable link
+							echo "</a>";
+						// add one to the counter
+						$i++;
+					}
+
+					// close off the class and therefore all data inside
+					echo "</div>";
+
+				
+
+				} else {
+				    
+				    // assume that the system is with no users so return a message informing there is no users yet
+				    echo "There is no users to display, <a href='" . $GLOBALS['domain'] . "users/" . $latestUsers[$i]['user_name'] . ">";
+				}
+
+		} else {
+
+		    // output there is a failed connection
+		    $this->error('No database connection');
+		}
+
+    
+    }
+
+
+
+
     // debug function for error logging
     public function debug($array) {
+
+    	// echo out html fomratting
     	echo "<pre>";
+    	// print the array in an easy to read format
     	print_r($array);
+    	// echo out close html formatting 
     	echo "</pre>";
     }
 

@@ -9,8 +9,11 @@
 	require_once('translations/en.php');
 	require_once('classes/Login.php');
 	require_once('classes/SiteFunctions.php');
+	require_once('classes/News.php');
+	
 	$login = new Login();
 	$SiteFunctions = new SiteFunctions();
+	$news = new News();
 
 	// the logo file located in the assets folder (inside config to edit the logo)
 	$logo = $domain . "assets/img/" . $logo;
@@ -106,3 +109,20 @@
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 	</head>
+
+
+	<script type="text/javascript">
+		$(function () {
+		$('[data-toggle="tooltip"]').tooltip()
+		})
+		$(document).ready(function() {
+		    $('body').tooltip({
+		        selector: "[data-tooltip=tooltip]",
+		        container: "body"
+		    });
+		});
+	</script>
+
+
+
+
