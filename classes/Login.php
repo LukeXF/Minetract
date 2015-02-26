@@ -166,7 +166,7 @@ class Login
             } catch (PDOException $e) {
 
                 // If an error is catched, database connection failed
-                $this->errors[] = MESSAGE_DATABASE_ERROR;
+                $this->errors[] = "Database connection problem.";
 
                 // return false :(
                 return false;
@@ -812,7 +812,7 @@ class Login
 
 
         // generates the link for the verfication using URL enconde to support all email types
-        $link = $GLOBALS['domain'] . 'register' . $GLOBALS['dotPHP'] . '?user_name=' . urlencode($user_name) . '&verification_code=' . urlencode($user_password_reset_hash);
+        $link = $GLOBALS['domain'] . 'password-reset' . $GLOBALS['dotPHP'] . '?user_name=' . urlencode($user_name) . '&verification_code=' . urlencode($user_password_reset_hash);
 
 
 
@@ -894,6 +894,10 @@ class Login
         }
     }
 
+
+
+
+
     // Checks and writes the new password as the password has been reset
     public function editNewPassword($user_name, $user_password_reset_hash, $user_password_new, $user_password_repeat)
     {
@@ -960,6 +964,10 @@ class Login
         }
     }
 
+
+
+
+
     // Gets the success state of the password-reset-link-validation.
     public function passwordResetLinkIsValid()
     {
@@ -967,12 +975,20 @@ class Login
         return $this->password_reset_link_is_valid;
     }
 
+
+
+
+
     // Gets the success state of the password-reset action.
     public function passwordResetWasSuccessful()
     {   
         // if the password reset was successful
         return $this->password_reset_was_successful;
     }
+
+
+
+
 
     // Gets the username
     public function getUsername()
@@ -982,6 +998,10 @@ class Login
     }
 
     
+
+
+
+
     /**
      * Get either a Gravatar URL or complete image tag for a specified email address.
      * Gravatar is the #1 (free) provider for email address based global avatar hosting.
@@ -1017,4 +1037,8 @@ class Login
         // the image url like above but with an additional <img src .. /> around
         $this->user_gravatar_image_tag = $url;
     }
+
+
+
+    
 }

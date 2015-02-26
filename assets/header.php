@@ -10,7 +10,7 @@
 	require_once('classes/Login.php');
 	require_once('classes/SiteFunctions.php');
 	$login = new Login();
-	$Functions = new SiteFunctions();
+	$SiteFunctions = new SiteFunctions();
 
 	date_default_timezone_set('UTC');
 
@@ -45,7 +45,7 @@
 				"active" => "",
 				"url" => "",          
 				"submenu" => array(
-					"Summary" => "account",
+					"Summary" => "login" . $dotPHP,
 					"logout"  => "?logout"
 				)
 			)
@@ -67,6 +67,14 @@
 		);
 	}
 
+	// sets the title of the page via the 
+	$titleName = ucfirst(basename($_SERVER['PHP_SELF'],'.php'));
+
+	if (!empty($overrideTitleName)) {
+		$titleName = $overrideTitleName;
+	} elseif ($titleName == "Index") {
+		$titleName = "Home";
+	}
 ?>
 
 <html>
@@ -77,7 +85,7 @@
 		<meta name="description" content="<?php echo $brand; ?>">
 		<meta name="author" content="Luke Brown, <?php echo $email; ?>">
 
-	    <title><?php echo $brand; ?></title>
+	    <title><?php echo $SiteFunctions->setPageTitle() ?></title>
 
 		<link rel="stylesheet" type="text/css"  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,400|Raleway:400,300' rel='stylesheet' type='text/css'>

@@ -1,13 +1,4 @@
-<div class="jumbotron smaller">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="slideDown">Account Overview</h1>
-            </div>
-        </div>
-    </div>
-
-</div>
+<?php echo $SiteFunctions->displayJumbotron('Account Overview') ?>
 
 <div class="container">
     <div class="row">

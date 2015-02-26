@@ -1,19 +1,5 @@
-<div class="jumbotron smaller">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="slideDown">Register Page</h1>
-            </div>
-        </div>
-    </div>
+<?php echo $SiteFunctions->displayJumbotron() ?>
 
-</div>
-
-<?php
-$output = shell_exec('df -h');
-echo "<pre>$output</pre>";
-
-?>
 <div class="container">
     <div class="row">
         <div class="col-md-4 col-md-offset-4 contentbox">
@@ -76,7 +62,7 @@ echo "<pre>$output</pre>";
             </form>
             <?php } ?>
 
-                <a href="login<?php echo $dotPHP; ?>">Back to account login</a>
+                <a href="<?php echo $domain; ?>login<?php echo $dotPHP; ?>">Back to account login</a>
 
         </div>
     </div>

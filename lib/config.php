@@ -4,6 +4,7 @@
 	$email = "me@luke.sx"; // The address used through Mandrill to send emails
 	$mandrillTemplateName = "Test"; // the template styling name for the emails
 	$mandrillAPIKey = "f3aumBm_dMe6Inv3vTWD7w"; // the API key for Mandrill servers
+	date_default_timezone_set('GMT'); // timezone setting for the site
 
 
 	// detect if on local testing 
@@ -16,6 +17,7 @@
 		$domain = "http://dev.minetract.net/"; // the actual domain this site runs off
 
 		$config = array(
+
 			'admin_username' => 'admin', // username used to login to the admin area
 			'admin_password' => 'admin', // password used to login to the admin area
 

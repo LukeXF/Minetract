@@ -14,6 +14,14 @@
 
 <div class="container">
 	<div class="row">
+		<h2 align="center">What users are registered here?</h2>
+		<?php echo $SiteFunctions->getUserData('me@luke.sx') ?>
+
+	</div>
+</div>
+
+<div class="container">
+	<div class="row">
 		<h2 align="center">What does <?php echo $brand; ?> come with?</h2>
 		<div class="col-md-6">
 			<h3>Front end</h3>

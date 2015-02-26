@@ -7,7 +7,7 @@
 	$registration = new Registration();
 
     if ($login->isUserLoggedIn() == true) {
-        include("views/logged_in.php");
+        include("views/v-account.php");
     } else {
         include("views/v-register.php");
     }

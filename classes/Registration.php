@@ -56,7 +56,7 @@ class Registration
             } catch (PDOException $e) {
 
                 // If an error is catched, database connection failed
-                $this->errors[] = MESSAGE_DATABASE_ERROR;
+                $this->errors[] = "Database connection problem.";
 
                 // return false :(
                 return false;

@@ -1,4 +1,6 @@
 <?php
+	$overrideTitleName = "Reset Password";
+	
     include('assets/header.php');
     include('assets/navbar.php');
 
