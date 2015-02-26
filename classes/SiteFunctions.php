@@ -204,8 +204,10 @@ class SiteFunctions
 
 
 
-    // output potential errors to 
-    public function error($error) {
+    // output errors that are set by other functions in clear warning text, both outputted at the location of the function called
+    // and then output to the console for a quick overview only if the debug is true in the config file.
+    // This uses the PHP function debug_backtrace to local the previous function that is calling the error function.
+    private function error($error) {
 
     	// output error on message in as much detail as possible if debug in the ocnfig file is turned on
     	if ($GLOBALS['debug'] == true) {
@@ -231,55 +233,48 @@ class SiteFunctions
     }
 
 
-    public function get_gravatar($email, $size = 80)
+
+
+    // load the gravatar image for a defined email address
+    private function get_gravatar($email, $size = 80)
     {	
 
-    	// the default logo loaded in the config file
-		$defaultSiteLogo = urlencode($GLOBALS['logo']);
 
+    	// detect if on localhost then display a default imageset by gravtar
+    	// this is because Gravatar does not allow custom default images on a private network
+    	// it must be publicly accessible, therefor if on localhost the image will fail
+    	if ($this->detectLocalhost()){
+
+    		// because we're on localhost, use gravatar's pre-provided identicon 
+    		$defaultSiteLogo = "identicon";
+
+    	} else {
+
+    		// the default logo loaded in the config file for production environments only
+    		// cannot be on localhost url
+			$defaultSiteLogo = urlencode($GLOBALS['logo']);
+
+    	}
+
+
+    	// create the gravtar variable by loading the gravatar url
     	$gravatar = "http://www.gravatar.com/avatar/";
+    	// remove blank spaces after and convert the lowercase email address to then hd5 it up
     	$gravatar .= md5( strtolower( trim( $email ) ) );
+    	// finally add the get variables for the fallback image and the size of the image to load
     	$gravatar .= "?d=" . $defaultSiteLogo . "&s=" . $size;
 
-    	//return $gravatar;
-
-    	if ($this->detectLocalhost){
-    		echo "on local " . $_SERVER['REMOTE_ADDR'];
-    	} else {
-    		echo "on produ " . $_SERVER['REMOTE_ADDR'];
-    	}
+    	// return the image as the url ready to be inputted into a <img> tag
+    	return $gravatar;
     }
 
-	/**
-	 * Get either a Gravatar URL or complete image tag for a specified email address.
-	 *
-	 * @param string $email The email address
-	 * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
-	 * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
-	 * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
-	 * @param boole $img True to return a complete IMG tag False for just the URL
-	 * @param array $atts Optional, additional key/value attributes to include in the IMG tag
-	 * @return String containing either just a URL or a complete image tag
-	 * @source http://gravatar.com/site/implement/images/php/
-	 */
-	private function get_gravatar2( $email, $s = 80, $r = 'g', $img = false, $atts = array() ) {
 
-		$defaultSiteLogo = urlencode($GLOBALS['logo']);
 
-	    $url = 'http://www.gravatar.com/avatar/';
-	    $url .= md5( strtolower( trim( $email ) ) );
-	    $url .= "?d=" . $defaultSiteLogo ."&s=$s";
 
-	    if ( $img ) {
-	        $url = '<img src="' . $url . '"';
-	        foreach ( $atts as $key => $val )
-	            $url .= ' ' . $key . '="' . $val . '"';
-	        $url .= ' />';
-	    }
-	    return $GLOBALS['logo'];
-	}
 
-	public function detectLocalhost()
+
+	// a simple function to detect if on localhost or now
+	private function detectLocalhost()
 	{
 		
 		// tell the function that theses are the localhost names
@@ -299,6 +294,10 @@ class SiteFunctions
 
 		}
 	}
+
+
+
+
 
 }
 

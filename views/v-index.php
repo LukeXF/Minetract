@@ -18,7 +18,7 @@
 
 		<?php $SiteFunctions->debug($SiteFunctions->getUserData('benpowley@gmail.com')) ?>
 
-		<?php $SiteFunctions->userTag('benpowley@gmail.com') ?>
+		<?php $SiteFunctions->userTag('me@luke.sx') ?>
 
 	</div>
 </div>
