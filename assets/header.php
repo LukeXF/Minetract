@@ -12,7 +12,16 @@
 	$login = new Login();
 	$SiteFunctions = new SiteFunctions();
 
-	date_default_timezone_set('UTC');
+	// the logo file located in the assets folder (inside config to edit the logo)
+	$logo = $domain . "assets/img/" . $logo;
+
+	                    
+	// show potential errors / feedback (from login object)
+	    if ($SiteFunctions->errors) {
+	        foreach ($SiteFunctions->errors as $error) {
+	            echo $error;
+	        }
+	    }
 
 
 	$grav_url = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( $_SESSION['user_email'] ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size; 
@@ -91,7 +100,7 @@
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,400|Raleway:400,300' rel='stylesheet' type='text/css'>
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="<?php echo $domain; ?>assets/css/style.css">
-		<link rel="icon" type="image/ico" href="<?php echo $domain; ?>assets/img/favicon.ico">
+		<link rel="icon" type="image/png" href="<?php echo $logo; ?>">
 
 
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>

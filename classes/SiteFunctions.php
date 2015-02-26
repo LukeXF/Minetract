@@ -130,41 +130,125 @@ class SiteFunctions
 
 
 
-
-    // display the function
-    public function userTag($username)
+    // generate the usertag
+    public function userTag($input)
     {
-    	echo "
-    	<a class='profile' href='" . $GLOBALS['brand'] . "user/" . $username . "'> 
-			By&nbsp;&nbsp;
-			<h4 class='animate'>
-			<img src='http://www.gravatar.com/avatar/bb5547972001fe3752726c8a51c4b8b0?d=assets%2Fimg%2Flogo-img.png&amp;s=120'>
-				LukeXF
-			</h4>
-		</a>";
+
+    	if ($this->getUserData($input) == false) {
+    		
+
+                // If there is no error, output the the error function
+               $this->error('No user found');
+
+
+    	} else {
+
+			echo "<H1>". $this->getUserData($input)->user_name . "</h1>";
+
+	    	echo "
+	    	<a class='profile' href='" . $GLOBALS['brand'] . "user/" . $username . "'> 
+				By&nbsp;&nbsp;
+				<h4 class='animate'>
+				<img src='" . $this->get_gravatar($input) . "'>
+				" . $this->getUserData($input)->user_name  . "
+				</h4>
+			</a>";
+
+
+		}
 
 
     }
 
 
 
-    // get the emaill address, username and id of the user
-    public function getUserData($username){
-   				// query to search for user and return username 
-                $query_update = $this->db_connection->prepare("SELECT `user_id`, `user_name`, `user_email` 
-                												FROM `users` 
-                												WHERE `user_name` = :username OR `user_email` = :username");
-                // prepared statment for username
-                $query_update->bindValue(':user_name', $user_name, PDO::PARAM_STR);
-                // excute the query to update the password reset hash
-                $query_update->execute();
-                $result_row = $query_update->fetchObject();
 
-                return $result_row;
+    // Search into database for the user data of user_name specified as parameter (selects all data)
+    public function getUserData($username)
+    {
+        // if database connection opened
+        if ($this->databaseConnection()) {
+
+            // database query, getting all the info of the selected user
+            $query_user = $this->db_connection->prepare("SELECT `user_id`, `user_name`, `user_email` 
+        												FROM `users` 
+        												WHERE `user_name` = :username OR `user_email` = :username");
+            // prepared statement for the username
+            $query_user->bindValue(':username', $username, PDO::PARAM_STR);
+            // excute username
+            $query_user->execute();
+
+            // get result row (as an object)
+            return $query_user->fetchObject();
+
+        } else {
+
+            // if invalid username
+            return false;
+        }
     }
 
 
 
+
+    // debug function for error logging
+    public function debug($array) {
+    	echo "<pre>";
+    	print_r($array);
+    	echo "</pre>";
+    }
+
+
+
+
+
+
+
+    // output potential errors to 
+    public function error($error) {
+
+    	// output error on message in as much detail as possible if debug in the ocnfig file is turned on
+    	if ($GLOBALS['debug'] == true) {
+
+			// generate the caller to backtrace the function that this error function as called from
+			$callers = debug_backtrace();
+
+
+    		// output to the console the full error
+	    	echo "<script>console.log('" . $GLOBALS['brand'] . " error: ";
+	    	echo $error . 
+				" in " . $callers[1]['class'] . "::" . $callers[1]['function'] . 
+				" called at line " . $callers[1]['line'] . " in " . $callers[1]['file'];
+	    	echo "')</script>";
+	
+
+			// output as a clear error message the error and function name
+			echo  "<span class='label label-danger' title='" . $callers[1]['file'] ."'>" . $error . 
+			" in " . $callers[1]['class'] . "::" . $callers[1]['function'] . 
+			" called at line " . $callers[1]['line'] . "</span>";
+
+    	}
+    }
+
+
+    public function get_gravatar($email, $size = 80)
+    {	
+
+    	// the default logo loaded in the config file
+		$defaultSiteLogo = urlencode($GLOBALS['logo']);
+
+    	$gravatar = "http://www.gravatar.com/avatar/";
+    	$gravatar .= md5( strtolower( trim( $email ) ) );
+    	$gravatar .= "?d=" . $defaultSiteLogo . "&s=" . $size;
+
+    	//return $gravatar;
+
+    	if ($this->detectLocalhost){
+    		echo "on local " . $_SERVER['REMOTE_ADDR'];
+    	} else {
+    		echo "on produ " . $_SERVER['REMOTE_ADDR'];
+    	}
+    }
 
 	/**
 	 * Get either a Gravatar URL or complete image tag for a specified email address.
@@ -178,19 +262,43 @@ class SiteFunctions
 	 * @return String containing either just a URL or a complete image tag
 	 * @source http://gravatar.com/site/implement/images/php/
 	 */
-	function get_gravatar( $email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
+	private function get_gravatar2( $email, $s = 80, $r = 'g', $img = false, $atts = array() ) {
+
+		$defaultSiteLogo = urlencode($GLOBALS['logo']);
+
 	    $url = 'http://www.gravatar.com/avatar/';
 	    $url .= md5( strtolower( trim( $email ) ) );
-	    $url .= "?s=$s&d=$d&r=$r";
+	    $url .= "?d=" . $defaultSiteLogo ."&s=$s";
+
 	    if ( $img ) {
 	        $url = '<img src="' . $url . '"';
 	        foreach ( $atts as $key => $val )
 	            $url .= ' ' . $key . '="' . $val . '"';
 	        $url .= ' />';
 	    }
-	    return $url;
+	    return $GLOBALS['logo'];
 	}
 
+	public function detectLocalhost()
+	{
+		
+		// tell the function that theses are the localhost names
+		$localhost = array('127.0.0.1', '::1', 'localhost');
+
+
+		// if the webpage matches a localhost name
+		if(!in_array($_SERVER['REMOTE_ADDR'], $localhost)){
+
+			// then return false because you're on a production environment 
+			return false;
+
+		} else {
+
+			// then return true because the domain matches localhost and is in the array
+			return true;
+
+		}
+	}
 
 }
 

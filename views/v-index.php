@@ -15,7 +15,10 @@
 <div class="container">
 	<div class="row">
 		<h2 align="center">What users are registered here?</h2>
-		<?php echo $SiteFunctions->getUserData('me@luke.sx') ?>
+
+		<?php $SiteFunctions->debug($SiteFunctions->getUserData('benpowley@gmail.com')) ?>
+
+		<?php $SiteFunctions->userTag('benpowley@gmail.com') ?>
 
 	</div>
 </div>
