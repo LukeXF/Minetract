@@ -10,7 +10,7 @@
 	require_once('classes/Login.php');
 	require_once('classes/SiteFunctions.php');
 	require_once('classes/News.php');
-	
+
 	$login = new Login();
 	$SiteFunctions = new SiteFunctions();
 	$news = new News();
@@ -100,7 +100,7 @@
 	    <title><?php echo $SiteFunctions->setPageTitle() ?></title>
 
 		<link rel="stylesheet" type="text/css"  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-		<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,400|Raleway:400,300' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,400|Raleway:400,300|Montserrat' rel='stylesheet' type='text/css'>
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="<?php echo $domain; ?>assets/css/style.css">
 		<link rel="icon" type="image/png" href="<?php echo $logo; ?>">

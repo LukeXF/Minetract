@@ -1,29 +1,12 @@
-<?php 
-    // include the configs / constants for the database connection
-    require_once("../config/db.php");
-    // load the login class
-    require_once($mt_path . "classes/Login.php");
-    // Process the page loading
-    require($mt_path . "classes/ProcessPage.php");
+<?php
+    include('../assets/header.php');
+    include('../assets/navbar.php');
 
-    $overrideTitleName = "News";
-    
-    // Load header
-    include ($mt_path . "assets/header.php");
-
-    $activeTab = "news";
-
-    // Load navbar
-    include ($mt_path . "assets/navbar.php");
-
-    // if logged in display content
     if ($login->isUserLoggedIn() == true) {
-        include($mt_path . "views/v-news.php");
+        include("../views/v-gateway.php");
     } else {
-        include($mt_path . "views/v-news.php");
+        include("../views/v-signin.php");;
     }
 
-
-    // Load footer
-    include($mt_path . "assets/footer.php");
+    include('../assets/footer.php');
 ?>

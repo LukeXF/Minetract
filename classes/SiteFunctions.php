@@ -131,46 +131,56 @@ class SiteFunctions
 
 
     // generate the usertag
-    public function userTag($input)
+    public function userTag($user_name)
     {
-
-    	if ($this->getUserData($input) == false) {
+    	// check if the user_name exists
+    	if ($this->getUserData($user_name)) {
     		
-
-               // If there is no error, output the the error function
-               $this->error('No user found');
-
+    		// set the email for this function
+    		$userTag_email = $this->getUserData($user_name)->user_email;
+    		// set the username for this function
+    		$userTag_username = $this->getUserData($user_name)->user_name;
 
     	} else {
 
-	    	echo "
-	    	<a class='profile' href='" . $GLOBALS['brand'] . "user/" . $username . "'> 
-				By&nbsp;&nbsp;
-				<h4 class='animate'>
-				<img src='" . $this->get_gravatar($input) . "'>
-				" . $this->getUserData($input)->user_name  . "
-				</h4>
-			</a>";
+    		// If there is no error, output the the error function
+           	$this->error('No user found');
+    	}
 
-
-		}
-
+		return "
+		<a class='profile' href='" . $GLOBALS['domain'] . "user/" . $userTag_username . "'> 
+			By&nbsp;&nbsp;
+			<h4 class='animate'>
+			<img src='" . $this->get_gravatar($userTag_email) . "'>
+			" . $userTag_username  . "
+			</h4>
+		</a>";
 
     }
 
 
 
 
+
     // Search into database for the user data of user_name specified as parameter (selects all data)
-    private function getUserData($username)
+    private function getUserData($username, $searchByID = false)
     {
         // if database connection opened
         if ($this->databaseConnection()) {
 
-            // database query, getting all the info of the selected user
-            $query_user = $this->db_connection->prepare("SELECT `user_id`, `user_name`, `user_email` 
+        	// if you want to search by ID 
+        	if ($searchByID) {
+        		// database query, getting all the info of the selected user
+            	$query_user = $this->db_connection->prepare("SELECT `user_id`, `user_name`, `user_email` 
+        												FROM `users` 
+        												WHERE `user_id` = :username");
+        	} else {
+        		// database query, getting all the info of the selected user
+          	  	$query_user = $this->db_connection->prepare("SELECT `user_id`, `user_name`, `user_email` 
         												FROM `users` 
         												WHERE `user_name` = :username OR `user_email` = :username");
+        	}
+           
             // prepared statement for the username
             $query_user->bindValue(':username', $username, PDO::PARAM_STR);
             // excute username
@@ -181,9 +191,27 @@ class SiteFunctions
 
         } else {
 
-            // if invalid username
+            // if connection issues
             return false;
         }
+    }
+
+
+    // Get User from ID (used in the news system and other database queries)
+    public function getUserDatafromID($username, $info = "user_name")
+    {	
+    	// search by user ID to get the returned object of the user data
+    	// the true is set to search by ID and not username or email
+    	if ($this->getUserData($username, true) != false) {
+    	
+    		// output the desired user data
+        	return $this->getUserData($username, true)->$info;
+
+    	} else {
+
+    		// If there is no error, output the the error function
+           	$this->error('No user found');
+    	}
     }
 
 
@@ -226,7 +254,7 @@ class SiteFunctions
 					while ($i < $count) {
 
 							// echo out the clickable link and class name
-							echo "<a class='profile animateAll' href='" . $GLOBALS['domain'] . "users/" . $latestUsers[$i]['user_name'] . "'>";
+							echo "<a class='profile animateAll' href='" . $GLOBALS['domain'] . "user/" . $latestUsers[$i]['user_name'] . "'>";
 							
 							// set variable for the users profile picture 
 							$gravImg = $this->get_gravatar($latestUsers[$i]['user_email']);

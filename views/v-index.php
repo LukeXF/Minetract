@@ -20,8 +20,8 @@
 
 		<?php $SiteFunctions->getNewestRegistered(); ?>
 
-		<?php $SiteFunctions->debug($news->getNewsFeed(2)); ?>
-		<?php $news->getNewsFeed(2); ?>
+		<h2 align="center"><?php echo $brand; ?> News</h2>
+		<?php $news->getNewsFeed(3); ?>
 	</div>
 </div>
 
